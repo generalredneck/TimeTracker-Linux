@@ -633,7 +633,7 @@ class uiLogic(uiBuilder, uiCreator, logicFunctions):
         return True
 
     def _setup_current_data(self, harvest_data):
-        self.entries_count = len(harvest_data['day_entries'])
+        self.entries_count = len(harvest_data()['day_entries'])
 
         self.today_total_hours = 0 #total hours amount for all entries combined
         self.today_total_elapsed_hours = 0 #today_total_hours + timedelta
@@ -644,7 +644,7 @@ class uiLogic(uiBuilder, uiCreator, logicFunctions):
         self.tasks = {}
 
         #all projects, used for liststore for combobox
-        for project in harvest_data['projects']:
+        for project in harvest_data()['projects']:
             project_id = str(project['id'])
             self.projects[project_id] = "%s - %s" % (project['client'], project['name'])
             self.tasks[project_id] = {}
@@ -664,7 +664,7 @@ class uiLogic(uiBuilder, uiCreator, logicFunctions):
         self.current_updated_at = None
 
         #get total hours and set current
-        for entry in harvest_data['day_entries']:
+        for entry in harvest_data()['day_entries']:
             #how many hours worked today, used in counter label
             self.today_total_hours += entry['hours']
 
@@ -767,14 +767,14 @@ class uiLogic(uiBuilder, uiCreator, logicFunctions):
                     return #Fail early, notes cannot be empty to send anything
 
                 data = self.harvest.get_today()
-                if not 'day_entries' in data:# this should never happen, but just in case lets check
+                if not 'day_entries' in data():# this should never happen, but just in case lets check
                     self.attention = "Unable to Get data from Harvest"
                     self.set_message_text("Unable to Get data from Harvest")
                     return
 
                 if self.running:
                     got_one = False
-                    for entry in data['day_entries']:
+                    for entry in data()['day_entries']:
                         if (entry['project_id'] == self.current_selected_project_id\
                             and entry['task_id'] == self.current_selected_task_id)\
                             and self.current_hours: #current running time with timedelta added from timer
@@ -818,11 +818,11 @@ class uiLogic(uiBuilder, uiCreator, logicFunctions):
                             'task_id': task_id
                         })
                         #print entry
-                    if 'timer_started_at' in entry and 'id' in entry: #stop the timer if adding it has started it
+                    if 'timer_started_at' in entry() and 'id' in entry: #stop the timer if adding it has started it
                         self.harvest.toggle_timer(entry['id'])
                 else:
                     got_one = False
-                    for entry in data['day_entries']:
+                    for entry in data()['day_entries']:
                         if (entry['project_id'] == self.current_selected_project_id\
                             and entry['task_id'] == self.current_selected_task_id): #found existing project/task entry for today, just append to it
                             #self.harvest.toggle_timer(entry['id'])
@@ -848,8 +848,8 @@ class uiLogic(uiBuilder, uiCreator, logicFunctions):
                             'task_id': self.current_selected_task_id
                         })
                         #print entry
-                    if 'timer_started_at' in entry and 'id' in entry: #stop the timer if it was started by harvest, do timing locally
-                        self.harvest.toggle_timer(entry['id'])
+                    if 'timer_started_at' in entry() and 'id' in entry: #stop the timer if it was started by harvest, do timing locally
+                        self.harvest.toggle_timer(entry()['id'])
 
             else:
                 self.statusbar.push(0, "No Project and Task Selected")

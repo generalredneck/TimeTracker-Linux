@@ -78,4 +78,4 @@ class HarvestStatus(Harvest):
         self.harvest = Harvest("", "", "").status()
 
     def get(self):
-        return self.harvest['status']
+        return self.harvest()['status']
